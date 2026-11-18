@@ -1,0 +1,122 @@
+# SRMR: Selective Reflection and Multi-Source Reranking
+# =====================================================================
+# This file contains two parts:
+#   Part 1 - the ordered reproduction pipeline (as comments)
+#   Part 2 - the Python dependency list
+#
+# Install dependencies first, then follow the stages in Part 1.
+# =====================================================================
+
+
+# =====================================================================
+# PART 1 - REPRODUCTION PIPELINE
+# =====================================================================
+#
+# ---------------------------------------------------------------------
+# 0. Prerequisites
+# ---------------------------------------------------------------------
+#   - Linux + CUDA 12.1 (vLLM does not support Windows)
+#   - GPU with >= 24 GB VRAM (the 8B LLM is served by vLLM)
+#   - Python 3.10
+#   - Replace every hard-coded absolute data path in the source files
+#     with your own project root.
+#   - Point the LLM loading path to a local Llama-3-8B-Instruct copy.
+#
+# ---------------------------------------------------------------------
+# 1. Raw data
+# ---------------------------------------------------------------------
+#   Place the Amazon 2018 Arts / Games / Instruments splits under the
+#   dataset directory, one sub-directory per dataset, each containing
+#   the interaction file and the item-attribute file.
+#
+# ---------------------------------------------------------------------
+# 2. CF backbone
+# ---------------------------------------------------------------------
+#   Train the DMF backbone for each dataset with the CF configuration.
+#
+# ---------------------------------------------------------------------
+# 3. Evaluation user subset
+# ---------------------------------------------------------------------
+#   Run the provided user-sampling helper once per dataset. It reuses the
+#   DMF 5-core filtering, so the sampled internal user ids match the CF
+#   user embedding table. Sampling is seeded and reproducible.
+#
+# ---------------------------------------------------------------------
+# 4. Sample construction
+# ---------------------------------------------------------------------
+#   Execute the sample-construction notebook for each dataset to obtain
+#   the interaction dictionary and the train / valid / test sample sets.
+#
+# ---------------------------------------------------------------------
+# 5. User clustering
+# ---------------------------------------------------------------------
+#   Run the clustering script for each dataset to obtain the per-user
+#   cluster assignment and the cluster centers.
+#
+# ---------------------------------------------------------------------
+# 6. Reflection pool construction
+# ---------------------------------------------------------------------
+#   Run the reflection-construction launcher once for each reflection
+#   type (EP, IP, CF). Each run writes one iteration file per optimisation
+#   step into the reflection pool directory.
+#
+#   Requires: the CF backbone (stage 2), the sample sets (stage 4),
+#             the user clusters (stage 5) and the local LLM.
+#
+# ---------------------------------------------------------------------
+# 7. PPO reflection selector
+# ---------------------------------------------------------------------
+#   Train the PPO reflection selector on the validation split using the
+#   reflection pool built in stage 6.
+#
+# ---------------------------------------------------------------------
+# 8. Online inference and evaluation
+# ---------------------------------------------------------------------
+#   Run the online inference launcher to obtain the base ranking, the
+#   reflection-only ranking and the fused ranking together with their
+#   metrics.
+#
+#   Requires: the PPO selector (stage 7) and the reflection pool
+#             (stage 6).
+#
+# ---------------------------------------------------------------------
+# 9. Known issues
+# ---------------------------------------------------------------------
+#   - The reflection-construction launcher references an undefined
+#     Python interpreter variable.
+#   - Reflection-pool directory naming differs between the producer
+#     and the consumers.
+#   - One dataset points to a stale CF checkpoint path.
+#   - Evaluation covers about 1000 users, not the full test split.
+#   - The reflection iteration used by the selector differs from the
+#     one used at inference time.
+
+
+# =====================================================================
+# PART 2 - PYTHON DEPENDENCIES
+# =====================================================================
+#
+# PyTorch must be installed from the CUDA wheel index first:
+#   pip install torch==2.3.1 torchvision==0.18.1 \
+#       --index-url https://download.pytorch.org/whl/cu121
+#
+# Then install the rest:
+#   pip install -r requirements.txt
+#
+torch==2.3.1
+numpy==1.24.1
+pandas==1.5.3
+scipy==1.12.0
+scikit-learn==1.4.1.post1
+tqdm==4.66.2
+tensorboard==2.17.0
+recbole==1.2.0
+transformers==4.43.1
+tokenizers==0.19.1
+accelerate==0.28.0
+vllm==0.5.3.post1
+ray==2.31.0
+pydantic==2.6.4
+fire==0.6.0
+tiktoken==0.7.0
+setproctitle>=1.3.2

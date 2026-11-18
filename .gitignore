@@ -1,0 +1,51 @@
+# ---------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.so
+build/
+dist/
+*.egg-info/
+
+# ---------------------------------------------------------------------
+# Environment / IDE
+# ---------------------------------------------------------------------
+.venv/
+venv/
+env/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------------------
+# Datasets
+# ---------------------------------------------------------------------
+# Raw datasets exceed the 100 MB per-file limit of plain git.
+# Download them separately, or track them with Git LFS instead by
+# removing the three lines below and adding the patterns to LFS.
+datasets/
+prepare_cluster_user/datasets/
+
+# ---------------------------------------------------------------------
+# Generated artifacts
+# ---------------------------------------------------------------------
+saved/
+iter_pool/
+result/
+log/
+log_tensorboard/
+rl_select/logs/
+rl_select/Meta-Reflect/
+
+# Model checkpoints and training curves
+*.pth
+*.pt
+*.npy
+
+# ---------------------------------------------------------------------
+# Misc
+# ---------------------------------------------------------------------
+*.log
+*.zip
