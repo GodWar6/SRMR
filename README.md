@@ -12,13 +12,29 @@ See ``./environment.yml`` for details.
 
 ## Dataset Prepare
 
-### prepare_cluster_user/prepare_data.py
+### Download
 
-This .py file is used to construct the CF model (DMF). To modify training configurations, adjust the settings in the `./prepare_cluster_user/DMF config/` for different datasets. Note: Please download the RecBole datasets first, then place them in the designated data folder and keep track of the path details.
+Amazon 2018 5-core (Arts / Games / Instruments), already filtered and converted to RecBole format:
+
+> **[Download from GitHub Release — data-v1.0](https://github.com/GodWar6/SRMR/releases/tag/data-v1.0)**
+>
+> Download `SRMR-datasets.zip` and extract it at the project root, so that
+> `datasets/Amazon_Arts/`, `datasets/Amazon_Games/` and
+> `datasets/Amazon_Instruments/` sit next to `refl_refining_iteration.py`.
+
+To rebuild them from the raw 5-core files instead:
 
 > [Datasets download](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/)
 >
 > Search for Amazon, and download the 2018 version which includes corresponding .item, .inter files; ensure all necessary files are included.
+
+### prepare_cluster_user/prepare_data.py
+
+This .py file is used to construct the CF model (DMF). To modify training configurations, adjust the settings in the `./prepare_cluster_user/DMF config/` for different datasets.
+
+### prepare_cluster_user/sample_users.py
+
+It samples the evaluation user subset (`users_<N>.json`, 1000 users by default). The subset is drawn from the same 5-core filtered interactions that the DMF backbone is trained on, so the sampled internal user ids match the CF user embedding table.
 
 ### prepare_cluster_user/pre_cu_sampled.py
 
